@@ -1,0 +1,143 @@
+:root { --bg: #000000; --surface: #0a0a0a; --surface2: #111111; --border: #30363d; --text: #e6edf3; --text2: #8b949e; --f1-red: #e10600; --green: #27c93f; --yellow: #ffd700; --accent: #58a6ff; }
+[data-theme="light"] { --bg: #ffffff; --surface: #f6f8fa; --surface2: #eaeef2; --border: #d0d7de; --text: #1f2328; --text2: #656d76; --f1-red: #e10600; --green: #1a7f37; --yellow: #9a6700; --accent: #0969da; } * { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; } .app { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* Header + Tab nav */
+.header { display: flex; align-items: center; justify-content: space-between; padding: 8px 24px; background: var(--surface); border-bottom: 1px solid var(--border); position: relative; } .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; } .header h1 span { color: var(--f1-red); } .header-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; } .header-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.tab-nav { display: flex; gap: 0; }
+.tab-btn { background: transparent; border: 1px solid transparent; color: var(--text2); padding: 6px 18px; font-size: 12px; font-weight: 600; letter-spacing: 1px; cursor: pointer; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; transition: all 0.15s; }
+.tab-btn:hover { color: var(--text); background: var(--surface2); }
+.tab-btn.active { color: var(--text); border-color: var(--border); border-bottom-color: var(--f1-red); background: var(--surface2); }
+.connection-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 12px; border-radius: 12px; background: var(--surface2); } .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; } .dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); } .dot.disconnected { background: var(--f1-red); }
+
+/* Session bar */
+.session-bar { display: flex; align-items: center; gap: 16px; padding: 6px 24px; background: var(--surface2); font-size: 13px; border-bottom: 1px solid var(--border); } .session-bar .meeting { font-weight: 700; } .session-bar .session { color: var(--text2); } .session-bar .status { color: var(--green); font-weight: 600; font-size: 11px; letter-spacing: 0.5px; } .session-bar .weather-bar { display: flex; align-items: center; gap: 12px; margin-left: 12px; font-size: 11px; color: var(--text2); } .session-bar .weather-bar span { white-space: nowrap; }
+
+/* Dashboard grid */
+.dashboard { display: grid; grid-template-columns: minmax(360px, 1fr) 1fr; gap: 12px; padding: 12px; flex: 1; min-height: 0; }
+/* Wider left panel for timing + sectors */
+@media (min-width: 1101px) { .dashboard { grid-template-columns: 1.2fr 1fr; } }
+
+/* Panels */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); }
+.panel-body { padding: 8px; }
+
+/* Timing table */
+.timing-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.timing-table th { text-align: left; padding: 3px 6px; color: var(--text2); font-weight: 500; font-size: 10px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.timing-table td { padding: 4px 6px; border-bottom: 1px solid rgba(48,54,61,0.5); }
+.driver-row { cursor: pointer; transition: background 0.1s; }
+.driver-row:hover { background: var(--surface2); }
+.driver-row.selected { background: var(--surface2); outline: 1px solid var(--accent); }
+/* Retired driver row */
+.driver-row.retired { opacity: 0.5; }
+.pos-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-weight: 700; font-size: 11px; color: #fff; }
+.pos-badge.retired { background: #555 !important; }
+.driver-team { font-size: 10px; color: var(--text2); }
+.driver-tla { font-weight: 700; font-size: 13px; }
+.driver-tla.retired { color: #666 !important; }
+.gap { font-family: monospace; font-size: 12px; }
+.gap.lap { color: var(--accent); font-weight: 600; }
+.sector-time { font-family: monospace; font-size: 11px; color: var(--text); text-align: right; }
+
+/* Telemetry metrics */
+.telemetry-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.metric-card { background: var(--surface2); border-radius: 6px; padding: 10px; text-align: center; }
+.metric-value { font-size: 22px; font-weight: 700; font-family: monospace; }
+.metric-label { font-size: 10px; color: var(--text2); text-transform: uppercase; margin-top: 2px; }
+
+/* Track ring */
+ .track-map { position: relative; width: 100%; height: 480px; background: var(--surface2); border-radius: 6px; overflow: hidden; } .track-map svg { width: 100%; height: 100%; }
+
+/* Weather */
+.weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; }
+.weather-item { display: flex; flex-direction: column; align-items: center; padding: 8px; background: var(--surface2); border-radius: 4px; }
+.weather-item .value { font-size: 16px; font-weight: 600; font-family: monospace; }
+.weather-item .label { font-size: 10px; color: var(--text2); }
+
+/* No session */
+.no-session { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--text2); font-size: 14px; }
+
+/* Race control */
+.race-control-list { max-height: 200px; overflow-y: auto; font-size: 12px; }
+.rc-message { padding: 4px 10px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+.rc-flag { font-weight: 700; min-width: 60px; } .rc-flag.yellow { color: var(--yellow); } .rc-flag.red { color: var(--f1-red); } .rc-flag.green { color: var(--green); }
+
+/* Loading bar */
+.loading-bar { height: 2px; background: transparent; } .loading-bar.active { background: linear-gradient(90deg, transparent, var(--f1-red), transparent); animation: loadPulse 1.5s infinite; }
+@keyframes loadPulse { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* Engineering selectors */
+.eng-selector-bar { display: flex; align-items: center; gap: 20px; padding: 8px 24px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.selector-group { display: flex; flex-direction: column; gap: 2px; }
+.selector-group label { font-size: 9px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.selector-group select { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; font-size: 12px; max-width: 200px; }
+ .filter-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+.filter-btn:hover { border-color: var(--accent); }
+.delta-badge { margin-left: auto; font-size: 13px; color: var(--text2); padding: 6px 12px; background: var(--surface); border-radius: 4px; border: 1px solid var(--border); }
+ 
+ /* Chart toggles */
+ .chart-toggle { display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 10px; color: var(--text2); user-select: none; }
+ .chart-toggle input[type="checkbox"] { accent-color: var(--f1-red); }
+ .chart-toggle:hover { color: var(--text); }
+ 
+ /* Responsive */
+ @media (max-width: 1100px) { .dashboard { grid-template-columns: 1fr; } }
+
+
+/* Mini-sector bar */
+.timing-table th { white-space: nowrap; }
+.sector-time { padding: 2px 4px; }
+
+/* Mini-sector bar with S1/S2/S3 grouping */
+.mini-sector-bar { display: flex; gap: 6px; align-items: center; justify-content: center; }
+.sector-group { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 30px; }
+.sector-label { font-size: 8px; color: #8b949e; line-height: 1; letter-spacing: 0.3px; }
+.sector-blocks { display: flex; gap: 1px; }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.flash-text { animation: blink 1s infinite; }
+
+.track-weather-bar { display: flex; align-items: center; gap: 12px; padding: 4px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; color: var(--text2); flex-wrap: wrap; }
+.track-weather-bar span { white-space: nowrap; }
+.track-weather-bar .rain { color: #58a6ff; font-weight: 700; }
+.theme-toggle { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+.theme-toggle:hover { background: var(--surface); color: var(--text); border-color: var(--text2); }
+/* Safety Car / VSC */
+.track-map.safety-car-active { animation: scGlow 1.2s ease-in-out infinite; }
+@keyframes scGlow { 0%,100% { box-shadow: inset 0 0 12px rgba(255,215,0,0.1), 0 0 6px rgba(255,215,0,0.15); } 50% { box-shadow: inset 0 0 24px rgba(255,215,0,0.35), 0 0 14px rgba(255,215,0,0.4); } }
+/* Pit stop highlight - yellow row */
+.driver-row.in-pit {
+  background: rgba(255, 215, 0, 0.2) !important;
+}
+
+/* Position change flash animation */
+@keyframes posFlash {
+  0%, 100% { background-color: transparent; }
+  25% { background-color: rgba(255, 215, 0, 0.35); }
+  50% { background-color: transparent; }
+  75% { background-color: rgba(255, 215, 0, 0.35); }
+}
+.driver-row.pos-flash {
+  animation: posFlash 0.8s ease-in-out;
+}
+/* Race Control new-message flash */
+@keyframes rcFlash {
+  0% { background-color: rgba(255, 215, 0, 0.4); }
+  50% { background-color: rgba(255, 215, 0, 0.15); }
+  100% { background-color: transparent; }
+}
+.rc-message.flash-new {
+  animation: rcFlash 2s ease-out;
+}
+
+/* Embed mode: hide chrome, full viewport */
+.app.embed {
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.app.embed .header,
+.app.embed .session-bar {
+  display: none;
+}
