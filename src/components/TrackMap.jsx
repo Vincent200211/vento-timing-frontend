@@ -9,10 +9,41 @@ function RaceRing({ trackPositions, drivers, selectedDriver, onSelectDriver, lap
 
     const isPracticeQualifying = session?.session_type && (session.session_type.toLowerCase().includes("practice") || session.session_type.toLowerCase().includes("qualifying"));
     const [countdown, setCountdown] = useState("");
+    const countdownRef = useRef(0);
+    const countdownTimerRef = useRef(null);
+
+    function formatCountdown(totalSec) {
+      if (totalSec <= 0) return "00:00";
+      var h = Math.floor(totalSec / 3600);
+      var m = Math.floor((totalSec % 3600) / 60);
+      var s = totalSec % 60;
+      if (h > 0) return String(h).padStart(2,'0') + ":" + String(m).padStart(2,'0') + ":" + String(s).padStart(2,'0');
+      return String(m).padStart(2,'0') + ":" + String(s).padStart(2,'0');
+    }
 
     useEffect(() => {
-      if (!isPracticeQualifying || !session?.end_date) { setCountdown(""); return; }
-      const updateCountdown = () => {
+      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+      if (!isPracticeQualifying) { setCountdown(""); return; }
+      if (session?.remaining) {
+        var parts = session.remaining.split(':');
+        if (parts.length >= 2) {
+          var totalSec = (parseInt(parts[0])||0)*3600 + (parseInt(parts[1])||0)*60 + (parseInt(parts[2])||0);
+          if (totalSec <= 0) { setCountdown("00:00"); return; }
+          setCountdown(formatCountdown(totalSec));
+          countdownRef.current = totalSec;
+          countdownTimerRef.current = setInterval(function() {
+            countdownRef.current -= 1;
+            if (countdownRef.current <= 0) {
+              setCountdown("00:00");
+              if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+            } else {
+              setCountdown(formatCountdown(countdownRef.current));
+            }
+          }, 1000);
+          return function() { if (countdownTimerRef.current) clearInterval(countdownTimerRef.current); };
+        }
+      }
+      if (session?.end_date) {
         var endDateStr = session.end_date;
         var offsetStr = session.gmt_offset || "00:00:00";
         var sign = offsetStr.startsWith("-") ? "" : "+";
@@ -20,21 +51,23 @@ function RaceRing({ trackPositions, drivers, selectedDriver, onSelectDriver, lap
           var offsetTrimmed = offsetParts[0] + ":" + (offsetParts[1] || "00");
           var fullIso = endDateStr + sign + offsetTrimmed;
         var endDate = new Date(fullIso);
-        var diff = endDate - new Date();
-        if (diff <= 0) { setCountdown("00:00"); return; }
-        var hours = Math.floor(diff / 3600000);
-        var mins = Math.floor((diff % 3600000) / 60000);
-        var secs = Math.floor((diff % 60000) / 1000);
-        setCountdown((hours > 0
-          ? String(hours).padStart(2,'0') + ":" + String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0')
-          : String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0')));
-      };
-      updateCountdown();
-      var interval = setInterval(updateCountdown, 1000);
-      return function() { clearInterval(interval); };
-    }, [isPracticeQualifying, session?.end_date, session?.gmt_offset]);
-
-    const started = isPracticeQualifying ? (session && session.session_type) : (lapCount && lapCount.current_lap >= 1);
+        function updateCountdown() {
+          var diff = endDate - new Date();
+          if (diff <= 0) { setCountdown("00:00"); return; }
+          var hours = Math.floor(diff / 3600000);
+          var mins = Math.floor((diff % 3600000) / 60000);
+          var secs = Math.floor((diff % 60000) / 1000);
+          setCountdown(hours > 0
+            ? String(hours).padStart(2,'0') + ":" + String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0')
+            : String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0'));
+        }
+        updateCountdown();
+        var interval = setInterval(updateCountdown, 1000);
+        return function() { clearInterval(interval); };
+      }
+      setCountdown("");
+    }, [isPracticeQualifying, session?.remaining, session?.end_date, session?.gmt_offset]);
+const started = isPracticeQualifying ? (session && session.session_type) : (lapCount && lapCount.current_lap >= 1);
 
     const redFlag = trackStatus?.status?.includes("Red");
 
@@ -316,7 +349,7 @@ function RaceRing({ trackPositions, drivers, selectedDriver, onSelectDriver, lap
             </text>
           )}
 
-          {isPracticeQualifying && <text x={80} y={86} textAnchor="middle" fontSize="20" fill="var(--text)" fontWeight="700">
+          {isPracticeQualifying && <text x={80} y={78} textAnchor="middle" fontSize="20" fill="var(--text)" fontWeight="700">
               {session?.session_name || "SESSION"}
             </text>}
           {isPracticeQualifying && <text x={80} y={120} textAnchor="middle" fontSize="14" fill="var(--text)" fontWeight="900">
