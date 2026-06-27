@@ -1103,31 +1103,59 @@ function RaceRing({ trackPositions, drivers, selectedDriver, onSelectDriver, lap
 // RaceRing
 
    const isPracticeQualifying = session?.session_type && (session.session_type.toLowerCase().includes("practice") || session.session_type.toLowerCase().includes("qualifying"));
-   const [countdown, setCountdown] = useState("");
+  const [countdown, setCountdown] = useState("");
+  const remainingRef = useRef(null);
 
-   useEffect(() => {
-         if (!isPracticeQualifying || !session?.end_date) { setCountdown(""); return; }
-         const updateCountdown = () => {
-           var endDateStr = session.end_date;
-           var offsetStr = session.gmt_offset || "00:00:00";
-           var sign = offsetStr.startsWith("-") ? "" : "+";
-           var offsetParts = offsetStr.split(":");
-          var offsetTrimmed = offsetParts[0] + ":" + (offsetParts[1] || "00");
-          var fullIso = endDateStr + sign + offsetTrimmed;
-           var endDate = new Date(fullIso);
-           var diff = endDate - new Date();
-           if (diff <= 0) { setCountdown("00:00"); return; }
-           var hours = Math.floor(diff / 3600000);
-           var mins = Math.floor((diff % 3600000) / 60000);
-           var secs = Math.floor((diff % 60000) / 1000);
-           setCountdown((hours > 0
-             ? String(hours).padStart(2,'0') + ":" + String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0')
-             : String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0')));
-         };
-         updateCountdown();
-         var interval = setInterval(updateCountdown, 1000);
-         return function() { clearInterval(interval); };
-       }, [isPracticeQualifying, session?.end_date, session?.gmt_offset]);
+  useEffect(() => {
+    if (session?.remaining && session.remaining.includes(":")) {
+      remainingRef.current = {
+        value: session.remaining,
+        receivedAt: Date.now(),
+      };
+    }
+  }, [session?.remaining]);
+
+  useEffect(() => {
+        if (!isPracticeQualifying) { setCountdown(""); return; }
+        const updateCountdown = () => {
+          const rem = remainingRef.current;
+          if (rem && rem.value && rem.value.includes(":")) {
+            const parts = rem.value.split(":").map(Number);
+            const totalSecs = parts.length === 3
+              ? parts[0] * 3600 + parts[1] * 60 + parts[2]
+              : parts[0] * 60 + (parts[1] || 0);
+            const elapsed = (Date.now() - rem.receivedAt) / 1000;
+            const rs = Math.max(0, totalSecs - elapsed);
+            if (rs <= 0) { setCountdown("00:00"); return; }
+            const h = Math.floor(rs / 3600);
+            const m = Math.floor((rs % 3600) / 60);
+            const s = Math.floor(rs % 60);
+            setCountdown(h > 0
+              ? String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0')
+              : String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0'));
+            return;
+          }
+          if (!session?.end_date) { setCountdown(""); return; }
+          var endDateStr = session.end_date;
+          var offsetStr = session.gmt_offset || "00:00:00";
+          var sign = offsetStr.startsWith("-") ? "" : "+";
+          var offsetParts = offsetStr.split(":");
+         var offsetTrimmed = offsetParts[0] + ":" + (offsetParts[1] || "00");
+         var fullIso = endDateStr + sign + offsetTrimmed;
+          var endDate = new Date(fullIso);
+          var diff = endDate - new Date();
+          if (diff <= 0) { setCountdown("00:00"); return; }
+          var hours = Math.floor(diff / 3600000);
+          var mins = Math.floor((diff % 3600000) / 60000);
+          var secs = Math.floor((diff % 60000) / 1000);
+          setCountdown((hours > 0
+            ? String(hours).padStart(2,'0') + ":" + String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0')
+            : String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0')));
+        };
+        updateCountdown();
+        var interval = setInterval(updateCountdown, 1000);
+        return function() { clearInterval(interval); };
+      }, [isPracticeQualifying, session?.end_date, session?.gmt_offset]);
 
 
 
